@@ -1,0 +1,7 @@
+https://54.223.238.148:8443/cn/quote/symbols?&type=1&token=6fab4b8e8bd63ccd37d1a5130a32659e
+
+https://54.223.238.148:8443/cn/quote/prices/daily?symbols=600601,000008&period=10&token=6fab4b8e8bd63ccd37d1a5130a32659e
+
+https://54.223.238.148:8443/cn/quote/prices/daily?symbols=600601,000008&period=10&endTime=20170821&adjustd=1&token=6fab4b8e8bd63ccd37d1a5130a32659e
+
+symbols:股票列表,多只股票用逗号分隔,end_time:默认是最新的时间,period:默认是30,adjusted:{0:未赋权,1:前复权,缺省:全部数据}
