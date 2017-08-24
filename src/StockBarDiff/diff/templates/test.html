@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body>
+        <div align="center">
+            Hello
+        </div>
+        <table>
+            <caption>table title and/or explanatory text</caption>
+            <thead>
+                <tr>
+                    <th>header</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for res in results %}
+                <tr>
+                    <td>{{res.stock_code}}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>
