@@ -15,12 +15,11 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from tool import views as tool_views
-from diff import views as diff_views
+from  query import views as q_views
+
 
 urlpatterns = [
-
-    url(r'^$', tool_views.index),
+    url(r'^stock/(\d\d\d\d\d\d)/$', q_views.stock, name='stock'),
+    url(r'^$', q_views.index, name='index'),
     url(r'^admin/', admin.site.urls),
-    url(r'^query/$', diff_views.query)
 ]

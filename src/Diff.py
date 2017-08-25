@@ -6,6 +6,8 @@ Created on Aug 22, 2017
 import re
 import sqlite3
 from numpy import int64
+import threading
+from time import ctime,sleep
 from stockbar_10jqka.line.stock_bar_crawler import *
 from stockbar_10jqka.line.stock_bar_query import *
 from stockbar_beta.beta_bar_query_lib import *
@@ -27,20 +29,21 @@ class diff(object):
         self._sqlite_cursor = self._dbconn.cursor()
 
     def __del__(self):
+        '''    '''
         self._dbconn.close()
 
-    def check_bar(self):
+    def check_bar(self, flag_month):
         '''    '''
         for symbol  in self._stock_symbols :
             print('checking   ' + symbol)
-            self.compare_bars(symbol)
+            self.compare_bars(symbol, flag_month)
             
-    def compare_bars(self, symbol):
+    def compare_bars(self, symbol, flag_month):
         '''    '''
         try:
             local_bars = stock_bar_query().query(str(symbol),year='2017')
             beta_bars = beta_bar_query().query_stock_bar(symbols=str(symbol), date='last', period='260')[str(symbol)]
-            beta_bars = self.filtrate(beta_bars)
+            beta_bars = self.filtrate(beta_bars, flag_month)
         except KeyError:
             print(symbol, " has KeyError exception")
             return
@@ -58,14 +61,14 @@ class diff(object):
             return
         
         if local_keys[local_index] == beta_keys[beta_index]:
-            print('founded and compare day  ', local_keys[local_index])
+#             print('founded and compare day  ', local_keys[local_index])
             self.compare_bar( stock_code, local_bars, beta_bars, local_keys, beta_keys, local_index, beta_index)
             self.correspond_date( stock_code, local_bars, beta_bars, local_keys, beta_keys, local_index + 1, beta_index + 1)
         elif re.search(local_keys[local_index] , beta_keys[beta_index]) :
-            print('Local less a day ', local_keys[local_index] , beta_keys[beta_index])
+            print('Beta less a day ', local_keys[local_index] , beta_keys[beta_index])
             self.correspond_date( stock_code, local_bars, beta_bars, local_keys, beta_keys, local_index + 1, beta_index)
         else:
-            print('Beta less a day ', local_keys[local_index] , beta_keys[beta_index])
+            print('Local less a day ', local_keys[local_index] , beta_keys[beta_index])
             self.correspond_date( stock_code, local_bars, beta_bars, local_keys, beta_keys, local_index, beta_index + 1)
         
     def compare_bar(self, stock_code, local_bars, beta_bars, local_keys, beta_keys, local_index, beta_index):
@@ -76,27 +79,40 @@ class diff(object):
         try:
             db_stock_code = stock_code
             db_date           = key
-            db_open           = float( beta_bars[key]['topen'] )          - float( local_bars[key]['open'] )
-            db_high            = float( beta_bars[key]['thigh'] )          - float( local_bars[key]['high'] )
-            db_low             = float( beta_bars[key]['tlow'] )            - float( local_bars[key]['low'] )
-            db_close           = float( beta_bars[key]['tclose'] )         - float( local_bars[key]['close'] )
-            db_vol              = int( beta_bars[key]['vol'] )              - int( local_bars[key]['volume'] )
-            db_adj_open     = float( beta_bars[key]['adj_topen'] )   - float( local_bars[key]['adj_open'] )
-            db_adj_high      = float( beta_bars[key]['adj_thigh'] )   - float( local_bars[key]['adj_high'] )
-            db_adj_low       = float( beta_bars[key]['adj_tlow'] )     - float( local_bars[key]['adj_low'] )
-            db_adj_close     = float( beta_bars[key]['adj_tclose'] )  - float( local_bars[key]['adj_close'] )
-            db_adj_vol        = float( beta_bars[key]['adj_vol'] )     - float( local_bars[key]['adj_volume'] )
+            diff_open           = round( float( beta_bars[key]['topen'] )          - float( local_bars[key]['open'] ) ,4)
+            diff_high            = round( float( beta_bars[key]['thigh'] )          - float( local_bars[key]['high'] )  ,4)
+            diff_low             = round( float( beta_bars[key]['tlow'] )            - float( local_bars[key]['low'] )    ,4)
+            diff_close           = round( float( beta_bars[key]['tclose'] )         - float( local_bars[key]['close'] ) ,4)
+            diff_vol              = round( int( beta_bars[key]['vol'] )              - int( local_bars[key]['volume'] )      ,4)
+            diff_adj_open     = round( float( beta_bars[key]['adj_topen'] )   - float( local_bars[key]['adj_open'] )    ,4)
+            diff_adj_high      = round( float( beta_bars[key]['adj_thigh'] )   - float( local_bars[key]['adj_high'] )     ,4)
+            diff_adj_low       = round( float( beta_bars[key]['adj_tlow'] )     - float( local_bars[key]['adj_low'] )      ,4)
+            diff_adj_close     = round( float( beta_bars[key]['adj_tclose'] )  - float( local_bars[key]['adj_close'] )   ,4)
+            diff_adj_vol        = round( float( beta_bars[key]['adj_vol'] )     - float( local_bars[key]['adj_volume'] )   ,4)
         
-            sql = 'INSERT INTO "compare_data" ("stock_code", "date", "open", "high", "low", "close", "vol", "adj_open", "adj_high", "adj_low", "adj_close", "adj_vol") VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');'
-            sql = sql %(db_stock_code, db_date, db_open, db_high, db_low, db_close, db_vol, db_adj_open, db_adj_high, db_adj_low, db_adj_close, db_adj_vol)
+            sql = 'INSERT INTO "u_stock_bar_data" ("stock_code", "date", "beta_open", "beta_high", "beta_low", '\
+            '"beta_close", "beta_vol", "beta_adj_open", "beta_adj_high", "beta_adj_low", "beta_adj_close", "beta_adj_vol", '\
+            '"local_open", "local_high", "local_low", "local_close", "local_vol", "local_adj_open", "local_adj_high", "local_adj_low", '\
+            '"local_adj_close", "local_adj_vol", "diff_open", "diff_high", "diff_low", "diff_close", "diff_vol", "diff_adj_open", '\
+            '"diff_adj_high", "diff_adj_low", "diff_adj_close", "diff_adj_vol") VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', '\
+            '\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', '\
+            '\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');'
+    
+            sql = sql %(db_stock_code, db_date, \
+                        beta_bars[key]['topen'] , beta_bars[key]['thigh'] , beta_bars[key]['tlow'] , beta_bars[key]['tclose'] , beta_bars[key]['vol'], \
+                        beta_bars[key]['adj_topen'] , beta_bars[key]['adj_thigh'] , beta_bars[key]['adj_tlow'] , beta_bars[key]['adj_tclose'] , beta_bars[key]['adj_vol'], \
+                        local_bars[key]['open'] , local_bars[key]['high'] , local_bars[key]['low'] , local_bars[key]['close'] , local_bars[key]['volume'], \
+                        local_bars[key]['adj_open'] , local_bars[key]['adj_high'] , local_bars[key]['adj_low'] , local_bars[key]['adj_close'] , local_bars[key]['adj_volume'], \
+                        diff_open, diff_high, diff_low, diff_close, diff_vol, \
+                        diff_adj_open, diff_adj_high, diff_adj_low, diff_adj_close, diff_adj_vol )
+    
             self._sqlite_cursor.execute(sql)
             self._dbconn.commit()
-            print('Completed !')
-        except:
-#             self._dbconn.close()
+        except : # sqlite3.OperationalError:
+#                 print('sqlite3.OperationalError: database is locked')
             print('stock code ', stock_code, ' date ', key, ' has an error occurred while the data was compared.')
         
-    def filtrate(self, array):
+    def filtrate(self, array, flag):
         '''    '''
         result = {}
         for val in array:
@@ -108,8 +124,43 @@ class diff(object):
                 
 def main():
     '''    '''
+    threads = []
+#     t1 = threading.Thread(target=diff('201701'))
+#     threads.append(t1)
+#     t2 = threading.Thread(target=diff('201702'))
+#     threads.append(t2)
     d = diff()
-    d.check_bar()
+    t1 = threading.Thread(target=d.check_bar('201701'))
+    threads.append(t1)
+#     t2 = threading.Thread(target=d.check_bar('201702'))
+#     threads.append(t2)
+#     t3 = threading.Thread(target=d.check_bar('201703'))
+#     threads.append(t3)
+#     t1 = threading.Thread(target=d.check_bar('201704'))
+#     threads.append(t1)
+#     t1 = threading.Thread(target=d.check_bar('201705'))
+#     threads.append(t1)
+#     t1 = threading.Thread(target=d.check_bar('201706'))
+#     threads.append(t1)
+#     t1 = threading.Thread(target=d.check_bar('201707'))
+#     threads.append(t1)
+#     t1 = threading.Thread(target=d.check_bar('201708'))
+#     threads.append(t1)
+#     t1 = threading.Thread(target=d.check_bar('201709'))
+#     threads.append(t1)
+#     t1 = threading.Thread(target=d.check_bar('201710'))
+#     threads.append(t1)
+#     t1 = threading.Thread(target=d.check_bar('201711'))
+#     threads.append(t1)
+#     t1 = threading.Thread(target=d.check_bar('201712'))
+#     threads.append(t1)
+#     t1 = threading.Thread(target=d.check_bar('201701'))
+#     threads.append(t1)
+    
+    for thr in threads:
+        thr.setDaemon(True)
+        thr.start()
+    
     print('Completion of all tasks.')
 
 if __name__ == '__main__':
