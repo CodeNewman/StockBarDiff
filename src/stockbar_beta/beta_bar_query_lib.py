@@ -15,9 +15,9 @@ class beta_bar_query(object):
         '''    '''
         pass
         
-    def query_stock_symbols(self, symbol_type):
+    def query_stock_symbols(self):
         '''    '''
-        url = beta_url().get_symbol_url(symbol_type) 
+        url = beta_url().get_symbol_url() 
         print(url)
         requests_symbols = requests.get(url, verify=False) 
 

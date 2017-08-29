@@ -8,7 +8,7 @@ class beta_url(object):
     '''
     classdocs
     '''
-    _base_url = 'https://54.223.238.148:8443/cn/quote/'
+    _base_url = 'http://121.43.168.179:8087/quote/'
     _symbols_url =  _base_url + 'symbols'
     _symbol_type = '6'
     
@@ -26,8 +26,7 @@ class beta_url(object):
         self._period = period
     
     def get_symbol_url(self, symbol_type = '6'):
-        self._symbol_type = symbol_type
-        return self._symbols_url + '?&type=' + self._symbol_type + '&token=' + self._token
+        return 'http://121.43.168.179:8087/quote/symbols/nyseandnasdaq'
     
     def get_price_url(self):
-        return self._price_daily + '?&symbols=' + self._symbols + '&period=' + self._period + '&endtime=' + self._endTime + '&token=' + self._token
+        return self._price_daily + '?&symbols=' + self._symbols + '&period=' + self._period

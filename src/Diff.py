@@ -13,6 +13,7 @@ from stockbar_10jqka.line.stock_bar_query import *
 from stockbar_beta.beta_bar_query_lib import *
 from stockbar_beta.beta_url_lib import *
 from resource_urls import *
+from blaze.tests.test_sql import sql
 
 
 class diff(object):
@@ -24,7 +25,7 @@ class diff(object):
     def __init__(self):
         '''    '''
         query = beta_bar_query()
-        self._stock_symbols = query.query_stock_symbols('6')
+        self._stock_symbols = query.query_stock_symbols()
         self._dbconn = sqlite3.connect(DB_SQLITE_PATH)
         self._sqlite_cursor = self._dbconn.cursor()
 
@@ -79,16 +80,16 @@ class diff(object):
         try:
             db_stock_code = stock_code
             db_date           = key
-            diff_open           = round( float( beta_bars[key]['topen'] )          - float( local_bars[key]['open'] ) ,4)
-            diff_high            = round( float( beta_bars[key]['thigh'] )          - float( local_bars[key]['high'] )  ,4)
-            diff_low             = round( float( beta_bars[key]['tlow'] )            - float( local_bars[key]['low'] )    ,4)
-            diff_close           = round( float( beta_bars[key]['tclose'] )         - float( local_bars[key]['close'] ) ,4)
-            diff_vol              = round( int( beta_bars[key]['vol'] )              - int( local_bars[key]['volume'] )      ,4)
-            diff_adj_open     = round( float( beta_bars[key]['adj_topen'] )   - float( local_bars[key]['adj_open'] )    ,4)
-            diff_adj_high      = round( float( beta_bars[key]['adj_thigh'] )   - float( local_bars[key]['adj_high'] )     ,4)
-            diff_adj_low       = round( float( beta_bars[key]['adj_tlow'] )     - float( local_bars[key]['adj_low'] )      ,4)
-            diff_adj_close     = round( float( beta_bars[key]['adj_tclose'] )  - float( local_bars[key]['adj_close'] )   ,4)
-            diff_adj_vol        = round( float( beta_bars[key]['adj_vol'] )     - float( local_bars[key]['adj_volume'] )   ,4)
+            diff_open           = round( float( beta_bars[key]['open'] )          - float( local_bars[key]['open'] ) ,4)
+            diff_high            = round( float( beta_bars[key]['high'] )          - float( local_bars[key]['high'] )  ,4)
+            diff_low             = round( float( beta_bars[key]['low'] )            - float( local_bars[key]['low'] )    ,4)
+            diff_close           = round( float( beta_bars[key]['close'] )         - float( local_bars[key]['close'] ) ,4)
+            diff_vol              = round( int( beta_bars[key]['volume'] )              - int( local_bars[key]['volume'] )      ,4)
+            diff_adj_open     = round( float( beta_bars[key]['adj_open'] )   - float( local_bars[key]['adj_open'] )    ,4)
+            diff_adj_high      = round( float( beta_bars[key]['adj_high'] )   - float( local_bars[key]['adj_high'] )     ,4)
+            diff_adj_low       = round( float( beta_bars[key]['adj_low'] )     - float( local_bars[key]['adj_low'] )      ,4)
+            diff_adj_close     = round( float( beta_bars[key]['adj_close'] )  - float( local_bars[key]['adj_close'] )   ,4)
+            diff_adj_vol        = round( float( beta_bars[key]['adj_volume'] )     - float( local_bars[key]['adj_volume'] )   ,4)
         
             sql = 'INSERT INTO "u_stock_bar_data" ("stock_code", "date", "beta_open", "beta_high", "beta_low", '\
             '"beta_close", "beta_vol", "beta_adj_open", "beta_adj_high", "beta_adj_low", "beta_adj_close", "beta_adj_vol", '\
@@ -99,8 +100,8 @@ class diff(object):
             '\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');'
     
             sql = sql %(db_stock_code, db_date, \
-                        beta_bars[key]['topen'] , beta_bars[key]['thigh'] , beta_bars[key]['tlow'] , beta_bars[key]['tclose'] , beta_bars[key]['vol'], \
-                        beta_bars[key]['adj_topen'] , beta_bars[key]['adj_thigh'] , beta_bars[key]['adj_tlow'] , beta_bars[key]['adj_tclose'] , beta_bars[key]['adj_vol'], \
+                        beta_bars[key]['open'] , beta_bars[key]['high'] , beta_bars[key]['low'] , beta_bars[key]['close'] , beta_bars[key]['volume'], \
+                        beta_bars[key]['adj_open'] , beta_bars[key]['adj_high'] , beta_bars[key]['adj_low'] , beta_bars[key]['adj_close'] , beta_bars[key]['adj_volume'], \
                         local_bars[key]['open'] , local_bars[key]['high'] , local_bars[key]['low'] , local_bars[key]['close'] , local_bars[key]['volume'], \
                         local_bars[key]['adj_open'] , local_bars[key]['adj_high'] , local_bars[key]['adj_low'] , local_bars[key]['adj_close'] , local_bars[key]['adj_volume'], \
                         diff_open, diff_high, diff_low, diff_close, diff_vol, \
@@ -116,8 +117,9 @@ class diff(object):
         '''    '''
         result = {}
         for val in array:
-            if  val['tradedate'][0:4] == '2017' :
-                result[str(val['tradedate'])] = val
+            val['date'] = val['date'].replace('-','')
+            if  val['date'][0:4] == '2017' :
+                result[str(val['date'])] = val
             else:
                 pass
         return result

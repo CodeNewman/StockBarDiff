@@ -7,10 +7,11 @@ from stockbar_10jqka.line.stock_bar_crawler import *
 from stockbar_10jqka.line.stock_bar_query import *
 from stockbar_beta.beta_bar_query_lib import *
 from stockbar_beta.beta_url_lib import *
+from resource_urls import *
 import sqlite3
 
-# crawler = stock_bar_crawler()
-# crawler.craw_stocks("./data/stock_code.txt", '2015')
+crawler = stock_bar_crawler()
+crawler.craw_stocks(STOCK_SYMBOL_FILE)
 
 # query = stock_bar_query()
 # val = query.query('600000', 'last')
@@ -29,16 +30,16 @@ import sqlite3
 # val = query.query_stock_bar(symbols='601000', date='last', period='260')
 # print(val)
 
-sqlite_conn= sqlite3.connect("StockBarDiff/db.sqlite3")
-sqlite_cursor = sqlite_conn.cursor()
-
-flag='open'
-sql = 'SELECT compare_data.stock_code, count(compare_data.%s) as diff_%s FROM compare_data WHERE abs(compare_data.%s) %s GROUP BY compare_data.stock_code '
-sql = sql%(flag, flag, flag, '= 0.0')
-
-print(sql)
-sqlite_cursor.execute(sql)
-result = sqlite_cursor.fetchall()
-
-print(type(result))
-print(result)
+# sqlite_conn= sqlite3.connect("StockBarDiff/db.sqlite3")
+# sqlite_cursor = sqlite_conn.cursor()
+# 
+# flag='open'
+# sql = 'SELECT compare_data.stock_code, count(compare_data.%s) as diff_%s FROM compare_data WHERE abs(compare_data.%s) %s GROUP BY compare_data.stock_code '
+# sql = sql%(flag, flag, flag, '= 0.0')
+# 
+# print(sql)
+# sqlite_cursor.execute(sql)
+# result = sqlite_cursor.fetchall()
+# 
+# print(type(result))
+# print(result)

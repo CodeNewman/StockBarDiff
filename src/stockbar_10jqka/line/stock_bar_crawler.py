@@ -31,16 +31,20 @@ class stock_bar_crawler(object):
             stock symbol file
         """
         self._year = year
-        file_path = self._save_data_path + self._year
+        file_path = self._save_data_path + '\\' + self._year
         print(file_path)
         if not os.path.exists(file_path):
             os.makedirs(file_path)
 
-        for line in open(stock_symbol_file_name):
-            line = line.strip("\n")
-            line = line.split(':')
-            id_str = str(line[1])
-
+#         for line in open(stock_symbol_file_name):
+#             line = line.strip("\n")
+#             line = line.split(':')
+#             id_str = str(line[1])
+        file = open(stock_symbol_file_name, 'r')
+        id_str = json.load(file)['data']['symbols']
+        print(id_str)
+        
+        for id_str in id_str:
             print('climbing stock number : ' + id_str + ', year : ' + self._year)
             self.craw(id_str)
 
@@ -55,9 +59,17 @@ class stock_bar_crawler(object):
 
         url_00 = WEB_URL % (stock_id, '00', self._year)
         url_01 = WEB_URL % (stock_id, '01', self._year)
-
-        r_00 = requests.get(url_00)
-        r_01 = requests.get(url_01)
+        
+        index = 0
+        while True:
+            r_00 = requests.get(url_00)
+            r_01 = requests.get(url_01)
+            if r_00.status_code == 200 and r_01.status_code == 200:
+                break
+            if index >= 5:
+                print(stock_id, ' not found !!!')
+                break
+            index += 1
 
         if r_00.status_code == 200 and r_01.status_code == 200:
             index_00 = r_00.text.find("(");
@@ -95,7 +107,7 @@ class stock_bar_crawler(object):
 
             contents = "\n".join(contents)
 
-            file_name = self._save_data_path + self._year + '/%s.txt' % (t_id)
+            file_name = self._save_data_path + '\\' + self._year + '/%s.txt' % (t_id)
             file_object = open(file_name, 'w+')
             try:
                 file_object.write(contents)
