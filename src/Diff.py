@@ -13,7 +13,6 @@ from stockbar_10jqka.line.stock_bar_query import *
 from stockbar_beta.beta_bar_query_lib import *
 from stockbar_beta.beta_url_lib import *
 from resource_urls import *
-from blaze.tests.test_sql import sql
 
 
 class diff(object):

@@ -17,6 +17,7 @@ from django.conf.urls import url
 from django.contrib import admin
 from  query import views as q_views
 from crawler import views as c_views
+from query import views_var as q_views_var
 
 
 urlpatterns = [
@@ -24,4 +25,5 @@ urlpatterns = [
     url(r'^stock/(\S+)/$', q_views.stock, name='stock'),
     url(r'^$', q_views.index, name='index'),
     url(r'^crawler/$', c_views.do_work, name='crawler'),
+    url(r'^var/$', q_views_var.do_work, name='var'),
 ]
