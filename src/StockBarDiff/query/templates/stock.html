@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{{ code }}的详细信息</title>
+    </head>
+    <div style="overflow-x: auto; overflow-y: auto; height: screen.availHeight; width:screen.availWidth;">
+    <body>
+    <form method="get">
+        <div align="center">       
+        <table id="table" border="1" align="center" width="95%" cellpadding="2" cellspacing="1">
+            <caption>{{ code }} 的详细信息
+            	<hr>
+		               高亮误差在
+						<select name="rate">
+							{% for item in rate_range %}
+								<option value={{ item }} {% if top_rate == item %}selected{%endif%}> {{ item }} </option>
+							{% endfor %}
+						</select>
+		               %以上的值
+		    		<input type="submit" value="提交">
+		    	<hr>
+            </caption>
+            <thead>
+                <tr>
+                	<th rowspan="3" >股票号码</th>
+                    <th rowspan="3">日期</th>
+                    <th rowspan="3">来源</th>
+                    <th colspan="10">对比信息</th>
+                </tr>
+                <tr>
+                	<th colspan="5">不复权</th>
+                	<th colspan="5">前复权</th>
+                </tr>
+                <tr>
+					<th>日开盘价</th>
+					<th>日最高价</th>
+					<th>日最低价</th>
+					<th>日收盘价</th>
+					<th>日成交量</th>
+					<th>日开盘价</th>
+					<th>日最高价</th>
+					<th>日最低价</th>
+					<th>日收盘价</th>
+					<th>日成交量</th>
+                </tr>
+                <tr>
+               	    <th colspan="3">
+               	    	比率过滤	    	
+               	    	<input type="submit" value="过滤">
+               	    </th>
+                	<th>
+                		<select name="rate_open">
+							{% for item in rate_range %}
+								<option value={{ item }} 
+								{% if price_rate.rate_open == item %}selected{%endif%}
+								> {{ item }} </option>
+							{% endfor %}
+						</select>%						
+                	</th>
+                	<th>
+                		<select name="rate_high">
+							{% for item in rate_range %}
+								<option value={{ item }} 
+								{% if price_rate.rate_high == item %}selected{%endif%}
+								> {{ item }} </option>
+							{% endfor %}
+						</select>%
+                	</th>
+                	<th>
+                		<select name="rate_low">
+							{% for item in rate_range %}
+								<option value={{ item }} 
+								{% if price_rate.rate_low == item %}selected{%endif%}
+								> {{ item }} </option>
+							{% endfor %}
+						</select>%
+                	</th>
+                	<th>
+                		<select name="rate_close">
+							{% for item in rate_range %}
+								<option value={{ item }} 
+								{% if price_rate.rate_close == item %}selected{%endif%}
+								> {{ item }} </option>
+							{% endfor %}
+						</select>%
+                	</th>
+                	<th>
+                		<select name="rate_vol">
+							{% for item in rate_range %}
+								<option value={{ item }} 
+								{% if price_rate.rate_vol == item %}selected{%endif%}
+								> {{ item }} </option>
+							{% endfor %}
+						</select>%
+                	</th>
+                	<th>
+                		<select name="rate_adj_open">
+							{% for item in rate_range %}
+								<option value={{ item }} 
+								{% if price_rate.rate_adj_open == item %}selected{%endif%}
+								> {{ item }} </option>
+							{% endfor %}
+						</select>%
+                	</th>
+                	<th>
+                		<select name="rate_adj_high">
+							{% for item in rate_range %}
+								<option value={{ item }} 
+								{% if price_rate.rate_adj_high == item %}selected{%endif%}
+								> {{ item }} </option>
+							{% endfor %}
+						</select>%
+                	</th>
+                	<th>
+                		<select name="rate_adj_low">
+							{% for item in rate_range %}
+								<option value={{ item }} 
+								{% if price_rate.rate_adj_low == item %}selected{%endif%}
+								> {{ item }} </option>
+							{% endfor %}
+						</select>%
+                	</th>
+                	<th>
+                		<select name="rate_adj_close">
+							{% for item in rate_range %}
+								<option value={{ item }} 
+								{% if price_rate.rate_adj_close == item %}selected{%endif%}
+								> {{ item }} </option>
+							{% endfor %}
+						</select>%
+                	</th>
+                	<th>
+                		<select name="rate_adj_vol">
+							{% for item in rate_range %}
+								<option value={{ item }} 
+								{% if price_rate.rate_adj_vol == item %}selected{%endif%}
+								> {{ item }} </option>
+							{% endfor %}
+						</select>%
+                	</th>
+	               </tr>
+            </thead>
+            <tbody>
+            {% for res in result %}
+            
+            {% if res.32 == 1 %}
+            
+                <tr  align="center">
+					<td rowspan="4">{{ res.0 }}</td>
+					<td rowspan="4">{{ res.1 }}</td>
+					<td>中股</td>
+					<td>{{ res.2 }}</td>
+					<td>{{ res.3 }}</td>
+					<td>{{ res.4 }}</td>
+					<td>{{ res.5 }}</td>
+					<td>{{ res.6 }}</td>
+					<td>{{ res.7 }}</td>
+					<td>{{ res.8 }}</td>
+					<td>{{ res.9 }}</td>
+					<td>{{ res.10 }}</td>
+					<td>{{ res.11 }}</td>
+                </tr>
+                <tr  align="center">
+                	<td>同花顺</td>
+					<td>{{ res.12 }}</td>
+					<td>{{ res.13 }}</td>
+					<td>{{ res.14 }}</td>
+					<td>{{ res.15 }}</td>
+					<td>{{ res.16 }}</td>
+					<td>{{ res.17 }}</td>
+					<td>{{ res.18 }}</td>
+					<td>{{ res.19 }}</td>
+					<td>{{ res.20 }}</td>
+					<td>{{ res.21 }}</td>
+                </tr>
+                <tr  align="center">                	
+					<td>差值</td>
+					<td>{{ res.22.0 }}</td>
+					<td>{{ res.23.0 }}</td>
+					<td>{{ res.24.0 }}</td>
+					<td>{{ res.25.0 }}</td>
+					<td>{{ res.26.0 }}</td>
+					<td>{{ res.27.0 }}</td>
+					<td>{{ res.28.0 }}</td>
+					<td>{{ res.29.0 }}</td>
+					<td>{{ res.30.0 }}</td>
+					<td>{{ res.31.0 }}</td>
+                </tr>
+                <tr  align="center">                	
+					<td>比率(%)</td>
+					<td {% if res.22.1 >= rate %} bgcolor="FFF68F" {% endif %}>{{rate}}/{{ res.22.1 }}%</td>
+					<td {% if res.23.1 >= rate %} bgcolor="FFF68F" {% endif %}>{{ res.23.1 }}%</td>
+					<td {% if res.24.1 >= rate %} bgcolor="FFF68F" {% endif %}>{{ res.24.1 }}%</td>
+					<td {% if res.25.1 >= rate %} bgcolor="FFF68F" {% endif %}>{{ res.25.1 }}%</td>
+					<td>{{ res.26.1 }}%</td>
+					<td {% if res.27.1 >= rate %} bgcolor="FFF68F" {% endif %}>{{ res.27.1 }}%</td>
+					<td {% if res.28.1 >= rate %} bgcolor="FFF68F" {% endif %}>{{ res.28.1 }}%</td>
+					<td {% if res.29.1 >= rate %} bgcolor="FFF68F" {% endif %}>{{ res.29.1 }}%</td>
+					<td {% if res.30.1 >= rate %} bgcolor="FFF68F" {% endif %}>{{ res.30.1 }}%</td>
+					<td>{{ res.31.1 }}%</td>
+                </tr>
+            
+            {% endif %} 
+               
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </form>
+    </body>
+    </div>
+</html>
